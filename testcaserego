@@ -9,7 +9,7 @@ CxPolicy[result] {
 
     # Check if the resource contains any strings in the format ${}
     resourceValue := resource[_]
-    re_match(`\$\{[^\}]+\}`, resourceValue)
+    re_match(`\$\([^\)]+\}`, resourceValue)
 
     # Ensure the match is specifically looking for known hardcoded patterns
     is_hardcoded_variable(resourceValue)
@@ -25,18 +25,18 @@ CxPolicy[result] {
 
 # Function to identify hardcoded variables
 is_hardcoded_variable(value) {
-    contains(value, "${var")
-    contains(value, "${env")
-    contains(value, "${config")
-    contains(value, "${ClientSecret")
-    contains(value, "${clientSecret")
-    contains(value, "${pwd")
-    contains(value, "${password")
-    contains(value, "${Password")
-    contains(value, "${APIKey")
-    contains(value, "${apikey")
-    contains(value, "${api_key")
-    contains(value, "${API_KEY")
+    contains(value, "$(var")
+    contains(value, "$(env")
+    contains(value, "$(config")
+    contains(value, "$(ClientSecret)")
+    contains(value, "$(clientSecret)")
+    contains(value, "$(pwd")
+    contains(value, "$(password")
+    contains(value, "$(Password")
+    contains(value, "$(APIKey")
+    contains(value, "$(apikey")
+    contains(value, "$(api_key")
+    contains(value, "$(API_KEY")
     # Add more conditions as necessary
 }
 
