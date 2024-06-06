@@ -1,41 +1,43 @@
 package Cx
 
+import data.regex
+
 CxPolicy[result] {
     doc := input.document[i]
     # Iterate through all resources in the document
     resource := doc.resource[_][_]
 
     # Check if the resource contains any strings in the format ${}
-    matches := regex.find_all(`\$\{[^\}]+\}`, resource[_])
+    resourceValue := resource[_]
+    re_match(`\$\{[^\}]+\}`, resourceValue)
 
-    # Iterate through each match to filter out false positives
-    match := matches[_]
-    not is_false_positive(match)
+    # Ensure the match is not a false positive
+    not is_false_positive(resourceValue)
 
     result := {
         "documentId": doc.id,
         "searchKey": sprintf("resource[%s]", [resource]),
         "issueType": "HardcodedVariable",
         "keyExpectedValue": "Avoid using hardcoded variables in the format ${text}",
-        "keyActualValue": sprintf("Found hardcoded variable: %s", [match]),
+        "keyActualValue": sprintf("Found hardcoded variable: %s", [resourceValue]),
     }
 }
 
 # Function to identify and filter out false positives
-is_false_positive(match) {
+is_false_positive(value) {
     # Add any conditions here to exclude false positives, e.g., common variable names that are not passwords
-    not contains(match, "${var")
-    not contains(match, "${env")
-    not contains(match, "${config")
-    not contains(match, "${ClientSecret")
-    not contains(match, "${clientSecret")
-    not contains(match, "${pwd")
-    not contains(match, "${password")
-    not contains(match, "${Password")
-    not contains(match, "${APIKey")
-    not contains(match, "${apikey")
-    not contains(match, "${api_key")
-    not contains(match, "${API_KEY")
+    not contains(value, "${var")
+    not contains(value, "${env")
+    not contains(value, "${config")
+    not contains(value, "${ClientSecret")
+    not contains(value, "${clientSecret")
+    not contains(value, "${pwd")
+    not contains(value, "${password")
+    not contains(value, "${Password")
+    not contains(value, "${APIKey")
+    not contains(value, "${apikey")
+    not contains(value, "${api_key")
+    not contains(value, "${API_KEY")
     # Add more conditions as necessary
 }
 
