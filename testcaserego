@@ -1,0 +1,46 @@
+package Cx
+
+import data.regex
+
+CxPolicy[result] {
+    doc := input.document[i]
+    # Iterate through all resources in the document
+    resource := doc.resource[_][_]
+
+    # Check if the resource contains any strings in the format ${}
+    resourceValue := resource[_]
+    re_match(`\$\{[^\}]+\}`, resourceValue)
+
+    # Ensure the match is specifically looking for known hardcoded patterns
+    is_hardcoded_variable(resourceValue)
+
+    result := {
+        "documentId": doc.id,
+        "searchKey": sprintf("resource[%s]", [resource]),
+        "issueType": "HardcodedVariable",
+        "keyExpectedValue": "Avoid using hardcoded variables in the format ${text}",
+        "keyActualValue": sprintf("Found hardcoded variable: %s", [resourceValue]),
+    }
+}
+
+# Function to identify hardcoded variables
+is_hardcoded_variable(value) {
+    contains(value, "${var")
+    contains(value, "${env")
+    contains(value, "${config")
+    contains(value, "${ClientSecret")
+    contains(value, "${clientSecret")
+    contains(value, "${pwd")
+    contains(value, "${password")
+    contains(value, "${Password")
+    contains(value, "${APIKey")
+    contains(value, "${apikey")
+    contains(value, "${api_key")
+    contains(value, "${API_KEY")
+    # Add more conditions as necessary
+}
+
+# Helper function to check if a string contains a specific substring
+contains(str, substr) {
+    indexof(str, substr) != -1
+}
