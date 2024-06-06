@@ -9,7 +9,7 @@ CxPolicy[result] {
 
     # Check if the resource contains any strings in the format ${}
     resourceValue := resource[_]
-    re_match(`\$\([^\)]+\}`, resourceValue)
+    re_match(`\$\{[^\)]+\}`, resourceValue)
 
     # Ensure the match is specifically looking for known hardcoded patterns
     is_hardcoded_variable(resourceValue)
