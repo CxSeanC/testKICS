@@ -1,0 +1,26 @@
+package Cx
+
+import data.regex
+
+CxPolicy[result] {
+    doc := input.document[i]
+    # Iterate through all resources in the document
+    resource := doc.resource[_][_]
+
+    # Check if the resource contains any strings in the format ${}
+    resourceValue := resource[_]
+    re_match(`\$\{.*\}`, resourceValue)
+
+    result := {
+        "documentId": doc.id,
+        "searchKey": sprintf("resource[%s]", [resource]),
+        "issueType": "HardcodedVariable",
+        "keyExpectedValue": "Avoid using hardcoded variables in the format ${text}",
+        "keyActualValue": sprintf("Found hardcoded variable: %s", [resourceValue]),
+    }
+}
+
+# Helper function to check if a string contains a specific substring
+contains(str, substr) {
+    indexof(str, substr) != -1
+}
