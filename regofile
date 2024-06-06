@@ -1,0 +1,45 @@
+package Cx
+
+CxPolicy[result] {
+    doc := input.document[i]
+    # Iterate through all resources in the document
+    resource := doc.resource[_][_]
+
+    # Check if the resource contains any strings in the format ${}
+    matches := regex.find_all(`\$\{[^\}]+\}`, resource[_])
+
+    # Iterate through each match to filter out false positives
+    match := matches[_]
+    not is_false_positive(match)
+
+    result := {
+        "documentId": doc.id,
+        "searchKey": sprintf("resource[%s]", [resource]),
+        "issueType": "HardcodedVariable",
+        "keyExpectedValue": "Avoid using hardcoded variables in the format ${text}",
+        "keyActualValue": sprintf("Found hardcoded variable: %s", [match]),
+    }
+}
+
+# Function to identify and filter out false positives
+is_false_positive(match) {
+    # Add any conditions here to exclude false positives, e.g., common variable names that are not passwords
+    not contains(match, "${var")
+    not contains(match, "${env")
+    not contains(match, "${config")
+    not contains(match, "${ClientSecret")
+    not contains(match, "${clientSecret")
+    not contains(match, "${pwd")
+    not contains(match, "${password")
+    not contains(match, "${Password")
+    not contains(match, "${APIKey")
+    not contains(match, "${apikey")
+    not contains(match, "${api_key")
+    not contains(match, "${API_KEY")
+    # Add more conditions as necessary
+}
+
+# Helper function to check if a string contains a specific substring
+contains(str, substr) {
+    indexof(str, substr) != -1
+}
